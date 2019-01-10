@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com6510.uk.ac.shef.oak.com6510">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="uk.ac.shef.oak.com6510">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <permission
-        android:name="com6510.uk.ac.shef.oak.com6510.mapdemo.permission.MAPS_RECEIVE"
+        android:name="uk.ac.shef.oak.com6510.mapdemo.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com6510.uk.ac.shef.oak.com6510.MAPS_RECEIVE" />
+    <uses-permission android:name="uk.ac.shef.oak.com6510.MAPS_RECEIVE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
@@ -20,11 +21,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="AllowBackup,GoogleAppIndexingWarning">
+
         <uses-library
             android:name="org.apache.http.legacy"
             android:required="false" />
-
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
@@ -36,12 +38,14 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ShowImageActivity"
-            android:label="@string/title_show_image" />
-        <activity android:name=".MapActivity"></activity>
-        <activity android:name=".SearchActivity"></activity>
-        <activity android:name=".ImageExtraActivity"></activity>
+
+        <activity android:name=".ShowImageActivity" />
+
+        <activity android:name=".MapActivity" />
+        <activity android:name=".SearchActivity" />
+        <activity android:name=".InfoActivity" />
+        <activity android:name=".ResultActivity" />
+        <activity android:name=".ImageExtraActivity" />
     </application>
 
 </manifest>
