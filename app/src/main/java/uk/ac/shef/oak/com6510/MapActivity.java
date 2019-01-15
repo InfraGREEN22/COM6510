@@ -7,13 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -32,14 +26,35 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.util.HashMap;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentActivity;
 import uk.ac.shef.oak.com6510.database.Picture;
 
+/**
+ * Map activity of app which shows pictures on map.
+ */
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
-
+	/**
+	 * Grant permission code.
+	 */
 	private static final int ACCESS_FINE_LOCATION = 123;
+	/**
+	 * Google map object.
+	 */
 	private static GoogleMap mMap;
+	/**
+	 * Pictures to be showed on the map.
+	 */
 	private static List<Picture> pictures;
+	/**
+	 * Markers to be showed on the map.
+	 */
 	private static HashMap<Marker, Picture> markers;
+	/**
+	 * Location callback.
+	 */
 	LocationCallback mLocationCallback = new LocationCallback() {
 		@Override
 		public void onLocationResult(LocationResult locationResult) {
@@ -49,17 +64,35 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 				mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()), 14.0f));
 		}
 	};
+	/**
+	 * The context the view is being created in.
+	 */
 	private Context context;
+	/**
+	 * Location request.
+	 */
 	private LocationRequest mLocationRequest;
+	/**
+	 * Fused location provider client.
+	 */
 	private FusedLocationProviderClient mFusedLocationClient;
 
+	/**
+	 * Getter method of mMap.
+	 *
+	 * @return Google map object.
+	 */
 	public static GoogleMap getMap() {
 		return mMap;
 	}
 
+	/**
+	 * Add marker on map.
+	 * Set marker and picture into hashMap.
+	 */
 	public static void setMarker() {
 		for (Picture p : pictures) {
-			if (p.getLon() != 0.0 && p.getLat() != 0.0) {
+			if (p.getLon() < 200 && p.getLat() < 200) {
 				Marker myMarker = mMap.addMarker(
 						new MarkerOptions()
 								.position(new LatLng(p.getLat(), p.getLon()))
@@ -71,29 +104,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 		}
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.map_menu, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		int id = item.getItemId();
-		Intent intent;
-		switch (id) {
-			case R.id.menu_gallery:
-				intent = new Intent(this, MainActivity.class);
-				this.startActivity(intent);
-				//return true;
-			case R.id.menu_search:
-				intent = new Intent(this, SearchActivity.class);
-				this.startActivity(intent);
-				//return true;
-		}
-		return super.onOptionsItemSelected(item);
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -111,12 +124,18 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 		pictures = PictureAdapter.getAllPictures();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
 		this.context = context;
 		return super.onCreateView(parent, name, context, attrs);
 	}
 
+	/**
+	 * Initialize location.
+	 */
 	private void initLocations() {
 		if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 			// Should we show an explanation?
@@ -141,6 +160,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -184,6 +206,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 		}
 	}*/
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressLint("MissingPermission")
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
@@ -209,6 +234,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 		}
 	}
 
+	/**
+	 * When map is ready, show my location and markers on map.
+	 */
 	@Override
 	public void onMapReady(GoogleMap googleMap) {
 		mMap = googleMap;
@@ -225,15 +253,12 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
 		}
 		mMap.setMyLocationEnabled(true);
 		setMarker();
-		mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-			@Override
-			public boolean onMarkerClick(Marker marker) {
-//				marker.setTitle(markers.get(marker).getTitle());
-				Intent intent = new Intent(context, ImageExtraActivity.class);
-				intent.putExtra("pic", markers.get(marker));
-				context.startActivity(intent);
-				return false;
-			}
+		mMap.setOnMarkerClickListener(marker -> {
+//			marker.setTitle(markers.get(marker).getTitle());
+			Intent intent = new Intent(context, ImageExtraActivity.class);
+			intent.putExtra("pic", markers.get(marker));
+			context.startActivity(intent);
+			return false;
 		});
 	}
 	// PUT EXTRA FOR ID AND SET ONCLICK LISTENER FOR EACH MARKER BASED ON ID!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

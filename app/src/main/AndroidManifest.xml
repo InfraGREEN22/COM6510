@@ -3,9 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="uk.ac.shef.oak.com6510">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
     <permission
         android:name="uk.ac.shef.oak.com6510.mapdemo.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />

@@ -1,42 +1,62 @@
 package uk.ac.shef.oak.com6510;
 
 import android.Manifest;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
 import uk.ac.shef.oak.com6510.database.Picture;
 import uk.ac.shef.oak.com6510.viewmodel.PictureViewModel;
 
+/**
+ * Main activity of app. First page.
+ */
 public class MainActivity extends AppCompatActivity {
-
+	/**
+	 * The ViewModel of Picture.
+	 */
 	private PictureViewModel viewModel;
+	/**
+	 * Recycler view in app which shows pictures.
+	 */
 	private RecyclerView recyclerView;
+	/**
+	 * The adapter for Picture objects.
+	 */
 	private PictureAdapter adapter;
-	private String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE,
-			Manifest.permission.ACCESS_FINE_LOCATION};
+	/**
+	 * Permission list. For request on first run.
+	 */
+	private String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.main_menu, menu);
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		super.onOptionsItemSelected(item);
@@ -55,6 +75,9 @@ public class MainActivity extends AppCompatActivity {
 		return true;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -94,37 +117,21 @@ public class MainActivity extends AppCompatActivity {
 		recyclerView.addOnScrollListener(new MyScrollListener(fabGallery));
 	}
 
-	public class MyScrollListener extends RecyclerView.OnScrollListener {
-		FloatingActionButton fab;
-
-		MyScrollListener(FloatingActionButton fab) {
-			this.fab = fab;
-		}
-
-		@Override
-		public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
-			if (dy > 0 || dy < 0 && fab.isShown())
-				fab.hide();
-		}
-
-		@Override
-		public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-
-			if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-				fab.show();
-			}
-			super.onScrollStateChanged(recyclerView, newState);
-		}
-	}
-
+	/**
+	 * Initialize easy image.
+	 */
 	private void initEasyImage() {
 		EasyImage.configuration(this)
-				.setImagesFolderName("EasyImage sample")
-				.setCopyTakenPhotosToPublicGalleryAppFolder(true)
+				.setCopyTakenPhotosToPublicGalleryAppFolder(false)
 				.setCopyPickedImagesToPublicGalleryAppFolder(false)
 				.setAllowMultiplePickInGallery(true);
 	}
 
+	/**
+	 * Check if permissions were granted.
+	 *
+	 * @return True or false for granted or not.
+	 */
 	private boolean arePermissionsEnabled() {
 		for (String permission : permissions) {
 			if (checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED)
@@ -133,6 +140,9 @@ public class MainActivity extends AppCompatActivity {
 		return true;
 	}
 
+	/**
+	 * Request permissions.
+	 */
 	private void requestMultiplePermissions() {
 		List<String> remainingPermissions = new ArrayList<>();
 		for (String permission : permissions) {
@@ -143,6 +153,9 @@ public class MainActivity extends AppCompatActivity {
 		requestPermissions(remainingPermissions.toArray(new String[remainingPermissions.size()]), 101);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -164,23 +177,35 @@ public class MainActivity extends AppCompatActivity {
 		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
 		EasyImage.handleActivityResult(requestCode, resultCode, data, this, new DefaultCallback() {
+			/**
+			 * Do something if occurs error when pick image.
+			 */
 			@Override
 			public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
 				//Some error handling
 				e.printStackTrace();
 			}
 
+			/**
+			 * Do something when some images were picked.
+			 */
 			@Override
 			public void onImagesPicked(@NonNull List<File> imageFiles, EasyImage.ImageSource source, int type) {
 				onPhotosReturned(imageFiles);
 				adapter.onPhotosReturned(imageFiles, recyclerView);
 			}
 
+			/**
+			 * Do something when user cancel operation.
+			 */
 			@Override
 			public void onCanceled(EasyImage.ImageSource source, int type) {
 				//Cancel handling, you might wanna remove taken photo if it was canceled
@@ -192,16 +217,66 @@ public class MainActivity extends AppCompatActivity {
 		});
 	}
 
+	/**
+	 * Reaction after getting pictures.
+	 *
+	 * @param returnedPhotos Pictures given by user.
+	 */
 	private void onPhotosReturned(List<File> returnedPhotos) {
 		addImageElements(returnedPhotos);
 //		adapter.notifyDataSetChanged();
 //		recyclerView.scrollToPosition(returnedPhotos.size() - 1);
 	}
 
+	/**
+	 * Add pictures into database.
+	 *
+	 * @param returnedPhotos Pictures to be added.
+	 */
 	private void addImageElements(List<File> returnedPhotos) {
 		for (File file : returnedPhotos) {
 			Picture element = new Picture(file.getAbsolutePath(), file.getName());
-			viewModel.getRepository().insert(element);
+			viewModel.insert(element);
+		}
+	}
+
+	/**
+	 * ScrollListener of recycler view for hiding fab.
+	 */
+	public class MyScrollListener extends RecyclerView.OnScrollListener {
+		/**
+		 * The fab to be hided.
+		 */
+		FloatingActionButton fab;
+
+		/**
+		 * Constructor method of MyScrollListener class.
+		 *
+		 * @param fab The fab to be hided.
+		 */
+		MyScrollListener(FloatingActionButton fab) {
+			this.fab = fab;
+		}
+
+		/**
+		 * Hide fab when scroll recycler view.
+		 */
+		@Override
+		public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+			if (dy > 0 || dy < 0 && fab.isShown())
+				fab.hide();
+		}
+
+		/**
+		 * Show fab when stop scrolling recycler view.
+		 */
+		@Override
+		public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+
+			if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+				fab.show();
+			}
+			super.onScrollStateChanged(recyclerView, newState);
 		}
 	}
 }

@@ -1,22 +1,20 @@
 package uk.ac.shef.oak.com6510;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 
-import java.util.List;
-
-import uk.ac.shef.oak.com6510.database.Picture;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import uk.ac.shef.oak.com6510.viewmodel.PictureViewModel;
 
+/**
+ * Result activity of app which shows search result.
+ */
 public class ResultActivity extends AppCompatActivity {
-
-	private PictureAdapter adapter;
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -30,19 +28,14 @@ public class ResultActivity extends AppCompatActivity {
 		recyclerView.setHasFixedSize(true);
 		recyclerView.setNestedScrollingEnabled(false);
 
-		adapter = new PictureAdapter();
+		PictureAdapter adapter = new PictureAdapter();
 		recyclerView.setAdapter(adapter);
 
 		PictureViewModel viewModel = ViewModelProviders.of(this).get(PictureViewModel.class);
 
 		String key = getIntent().getStringExtra("key");
 
-		viewModel.search(key).observe(this, new Observer<List<Picture>>() {
-			@Override
-			public void onChanged(@Nullable List<Picture> pictures) {
-				//update recyclerView
-				adapter.setPictures(pictures);
-			}
-		});
+		//update recyclerView
+		viewModel.search(key).observe(this, adapter::setPictures);
 	}
 }
